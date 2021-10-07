@@ -1,17 +1,13 @@
-FROM ubuntu
+FROM centos:latest
 MAINTAINER fgg.tut@gmail.com
 
-# Install cron and netstat
-RUN apt-get update && apt-get install cron net-tools -y -qq
+# Install netstat
+RUN yum update -y && yum install -y git vim net-tools && yum clean all
 
+RUN touch /var/log/portsagent.log
 COPY portsagent.sh /opt/portsagent
 RUN chmod +x /opt/portsagent
 
-# Register cronjob to start the script and redirect its stdout/stderr
-# to the stdout/stderr of the entry process by adding lines to /etc/crontab
-RUN echo "*/1 * * * * root /opt/portsagent > /proc/1/fd/1 2>/proc/1/fd/2" >> /etc/crontab
-
-# Start cron in foreground (don't fork)
-ENTRYPOINT [ "cron", "-f" ]
+ENTRYPOINT [ "/opt/portsagent"]
 
 
