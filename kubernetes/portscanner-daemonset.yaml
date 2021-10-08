@@ -20,9 +20,11 @@ spec:
         effect: NoSchedule
       imagePullSecrets:
       - name: regcred 
+      hostNetwork: true
       containers:
       - name: portscanner
         image: fgg89/nodeport-scanner:latest
+        args: ["10"]
         imagePullPolicy: Always
         resources:
           limits:
