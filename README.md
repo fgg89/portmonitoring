@@ -11,7 +11,9 @@ TODO: Use SecretsManager to store the password and retrieve it from K8S
 
 kubectl get secret regcred --output="jsonpath={.data.\.dockerconfigjson}" | base64 --decode
 
+## Create daemonset
 
+kubectl apply -f portscanner-daemonset.yaml
 
 
 
