@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: portscanner-ds
+  namespace: portscanner
+  labels:
+    k8s-app: portscanner
+spec:
+  selector:
+    matchLabels:
+      name: portscanner
+  template:
+    metadata:
+      labels:
+        name: portscanner
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      imagePullSecrets:
+      - name: regcred 
+      containers:
+      - name: portscanner
+        image: fgg89/nodeport-scanner:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: app-logs
+          mountPath: /var/log/portscanner
+      volumes:
+      - name: app-logs
+        emptyDir: {}

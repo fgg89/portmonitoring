@@ -1,7 +1,13 @@
 #!/bin/bash
 
+if [ -z "$1" ]
+  then
+    echo "No interval supplied. Default 60s"
+    INTERVAL=60
+else
+  INTERVAL="$1"
+fi
 
-INTERVAL="$1"
 LOGFILE="/var/log/portscanner/portscanner.log"
 HOST=$(`which hostname`)
 NETSTAT_OUT=$(netstat -tuln4 | grep 'LISTEN' | awk '{print $4}' | grep 0.0.0.0 | cut -d':' -f2 | sort -un)
