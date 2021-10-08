@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: log-gen
+  namespace: logging
+spec:
+  selector:
+    matchLabels:
+      app: fluentd-cloudwatch
+      k8s-app: fluentd-cloudwatch
+  template:
+    metadata:
+      labels:
+        app: fluentd-cloudwatch
+        k8s-app: fluentd-cloudwatch
+      #annotations:
+      #  iam.amazonaws.com/role: logging-sa
+    spec:
+      #tolerations: 
+      #- key: node-role.kubernetes.io/master
+      #  effect: NoSchedule
+      #serviceAccount: logging-sa
+      #serviceAccountName: logging-sa
+      hostNetwork: true
+      volumes:
+        - name: fluentdconf
+          configMap:
+            name: fluentd-config
+        - name: app-logs
+          emptyDir: {}
+      containers:
+        - name: portsagent
+          image: busybox
+          command: ['sh', '-c']
+          args:
+          - >
+            while true;
+            do echo "Hello" | tee -a /var/log/portsagent/portsagent.log;
+            sleep 1;
+            done;
+          imagePullPolicy: Always
+          volumeMounts:
+          - mountPath: /var/log/portsagent
+            name: app-logs
+          resources:
+            requests:
+              cpu: 200m
+              memory: 0.5Gi
+            limits:
+              cpu: 400m
+              memory: 1Gi
+          securityContext:
+            privileged: false
+            readOnlyRootFilesystem: false
+            allowPrivilegeEscalation: false
+        - name: fluentd
+          image: fluent/fluentd-kubernetes-daemonset:v1.14-debian-cloudwatch-1
+          env:
+          - name: REGION
+            value: eu-west-1
+          - name: AWS_REGION
+            value: eu-west-1
+          - name: CLUSTER_NAME
+            value: mycluster
+         # - name: CI_VERSION
+         #   value: "k8s/1.0.1"
+          resources:
+            limits:
+              memory: 400Mi
+            requests:
+              cpu: 100m
+              memory: 200Mi
+          volumeMounts:
+          - name: fluentdconf
+            mountPath: /fluentd/etc
+          - name: app-logs
+            mountPath: /var/log/portsagent
+        #- name: logrotate
+        #  image: realz/logrotate
+        #  volumeMounts:
+        #  - mountPath: /var/log/containers
+        #    name: app-logs
+        #  env:
+        #  - name: CRON_EXPR
+        #    value: "*/15 * * * *"
+        #  - name: LOGROTATE_LOGFILES
+        #    value: "/var/log/containers/*.log"
+        #  - name: LOGROTATE_FILESIZE
+        #    value: "50M"
+        #  - name: LOGROTATE_FILENUM
+        #    value: "5"
