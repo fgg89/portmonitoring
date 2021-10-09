@@ -24,7 +24,8 @@ spec:
       containers:
       - name: portscanner
         image: fgg89/nodeport-scanner:latest
-        args: ["10"]
+        args: ["-i", "15"]
+        #args: ["-i", "2", "-e", "22"]
         imagePullPolicy: Always
         resources:
           limits:
