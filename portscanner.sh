@@ -32,7 +32,7 @@ openports()
   else
     IFS=',' read -ra WHITEPORTS <<< "$WHITELIST"
     #echo "${WHITEPORTS[@]}"
-    for port in ${WHITEPORTS[@]}
+    for port in "${WHITEPORTS[@]}"
     do
       OPENPORTS=("${OPENPORTS[@]/$port,}")  
     done
@@ -70,4 +70,4 @@ if [ -z "$eflag" ] ; then
      echo "No ports to be whitelisted from the report"
 fi
 
-openports $INTERVAL $WHITELIST
+openports "$INTERVAL" "$WHITELIST"
