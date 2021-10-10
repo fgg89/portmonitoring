@@ -2,6 +2,7 @@
 
 logfile="/var/log/portscanner/portscanner.log"
 whitelist=""
+interval=3
 
 # help menu
 usage()
@@ -9,10 +10,11 @@ usage()
    # Display Help
    echo "Script to fetch open ports in local system."
    echo
-   echo "Syntax: $0 [i|e]"
+   echo "Syntax: $0 [i|e|h]"
    echo "options:"
-   echo "-i     Report interval."
-   echo "-e     Exclude ports from report."
+   echo "-i     Report interval in seconds. Default $interval seconds"
+   echo "-e     Exclude list of comma-separated port numbers from report."
+   echo "-h     Print this menu."
    echo
    exit 1
 }
@@ -33,16 +35,17 @@ openports()
   while true; do
     netstat_out=$(netstat -tuln4 | grep 'LISTEN' | awk '{print $4}' | grep 0.0.0.0 | cut -d':' -f2 | sort -un)
     mapfile -t portlist < <(echo "${netstat_out}")
-    openports=$(echo "[${portlist[*]}]" | tr " " ",")
+    openports=$(echo "${portlist[*]}")
 
     if [ "$is_whitelist" = true ]; then
-      for port in "${whiteports[@]}"
+      for port in ${whiteports[@]}
       do
-        openports=("${openports[@]/$port,}")  
+        openports=( "${openports[@]/$port }" )  
       done
     fi
 
-    echo "$host": "$openports" >>"$logfile" 2>&1
+    openports=$(echo "${openports[*]}" | tr " " ",")
+    echo "$host": "[$openports]" >>"$logfile" 2>&1
     sleep "$interval";
   done
 }
@@ -71,8 +74,7 @@ while getopts ":i:e:h" option; do
 done
 
 if [ -z "$iflag" ] ; then
-     interval=3
-     echo "No interval specified. Default to $interval"
+  echo "No interval specified. Default to $interval"
 fi
 
 openports "$interval" "$whitelist"
