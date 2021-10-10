@@ -1,6 +1,7 @@
 #!/bin/bash
 
-LOGFILE="/var/log/portscanner/portscanner.log"
+logfile="/var/log/portscanner/portscanner.log"
+whitelist=""
 
 # help menu
 usage()
@@ -19,28 +20,30 @@ usage()
 # Core function, takes interval and whitelist as arguments
 openports()
 {
-  INTERVAL="$1"
-  WHITELIST="$2"
-  HOST=$(`which hostname`)
-  NETSTAT_OUT=$(netstat -tuln4 | grep 'LISTEN' | awk '{print $4}' | grep 0.0.0.0 | cut -d':' -f2 | sort -un)
-  mapfile -t portlist < <(echo "${NETSTAT_OUT}")
-  OPENPORTS=$(echo "[${portlist[*]}]" | tr " " ",")
+  interval="$1"
+  whitelist="$2"
+  host=$(`which hostname`)
+  is_whitelist=false
 
-  if [ -z "$WHITELIST" ]
-  then
-    echo "No whitelist specified"
-  else
-    IFS=',' read -ra WHITEPORTS <<< "$WHITELIST"
-    #echo "${WHITEPORTS[@]}"
-    for port in "${WHITEPORTS[@]}"
-    do
-      OPENPORTS=("${OPENPORTS[@]/$port,}")  
-    done
+  if [ ! -z "$whitelist" ]; then
+    IFS=',' read -ra whiteports <<< "$whitelist"
+    is_whitelist=true
   fi
-  
+
   while true; do
-    echo "$HOST": "$OPENPORTS" >>"$LOGFILE" 2>&1
-    sleep "$INTERVAL";
+    netstat_out=$(netstat -tuln4 | grep 'LISTEN' | awk '{print $4}' | grep 0.0.0.0 | cut -d':' -f2 | sort -un)
+    mapfile -t portlist < <(echo "${netstat_out}")
+    openports=$(echo "[${portlist[*]}]" | tr " " ",")
+
+    if [ "$is_whitelist" = true ]; then
+      for port in "${whiteports[@]}"
+      do
+        openports=("${openports[@]/$port,}")  
+      done
+    fi
+
+    echo "$host": "$openports" >>"$logfile" 2>&1
+    sleep "$interval";
   done
 }
 
@@ -50,11 +53,17 @@ while getopts ":i:e:h" option; do
       h) # Display usage menu
          usage;;
       i) # Enter report interval
-	 INTERVAL=$OPTARG
-	 iflag=1;;
+	 re='^[0-9]+$'
+	 interval=$OPTARG
+	 if [[ "$interval" =~ $re ]]; then
+	   iflag=1
+	 else
+           echo "Interval not a number. Exiting"
+	   exit 1
+	 fi
+	 ;;
       e) # Enter ports to exclude in the report
-	 WHITELIST=$OPTARG
-	 eflag=1;;
+	 whitelist=$OPTARG;;
       \?) # Invalid option
          echo "Error: Invalid option"
 	 usage;;
@@ -62,12 +71,8 @@ while getopts ":i:e:h" option; do
 done
 
 if [ -z "$iflag" ] ; then
-     INTERVAL=3
-     echo "No interval specified. Default to $INTERVAL"
-fi
-if [ -z "$eflag" ] ; then
-     WHITELIST=""
-     echo "No ports to be whitelisted from the report"
+     interval=3
+     echo "No interval specified. Default to $interval"
 fi
 
-openports "$INTERVAL" "$WHITELIST"
+openports "$interval" "$whitelist"
