@@ -26,7 +26,7 @@ openports()
   whitelist="$2"
   host=$(`which hostname`)
 
-  echo ""Report interval: $interval"s"
+  echo "Report interval: "$interval"s"
 
   while true; do
     netstat_out=$(netstat -tuln4 | grep 'LISTEN' | awk '{print $4}' | grep 0.0.0.0 | cut -d':' -f2 | sort -un)
