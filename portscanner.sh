@@ -25,26 +25,26 @@ openports()
   interval="$1"
   whitelist="$2"
   host=$(`which hostname`)
-  is_whitelist=false
 
-  if [ ! -z "$whitelist" ]; then
-    IFS=',' read -ra whiteports <<< "$whitelist"
-    is_whitelist=true
-  fi
+  echo ""Report interval: $interval"s"
 
   while true; do
     netstat_out=$(netstat -tuln4 | grep 'LISTEN' | awk '{print $4}' | grep 0.0.0.0 | cut -d':' -f2 | sort -un)
     mapfile -t portlist < <(echo "${netstat_out}")
     openports=$(echo "${portlist[*]}")
 
-    if [ "$is_whitelist" = true ]; then
-      for port in ${whiteports[@]}
+    # If whitelist is specified then remove those ports from the openports array
+    if [ ! -z "$whitelist" ]; then
+      IFS=',' read -ra whiteports <<< "$whitelist"
+      for port in "${whiteports[@]}"
       do
-        openports=( "${openports[@]/$port }" )  
+        openports=( "${openports[@]/$port}" )  
       done
     fi
 
-    openports=$(echo "${openports[*]}" | tr " " ",")
+    # Remove leading and trailing spaces and separate items with commas
+    openports=$(echo "${openports[*]}" | awk '{$1=$1};1'| tr " " ",")
+
     echo "$host": "[$openports]" >>"$logfile" 2>&1
     sleep "$interval";
   done
@@ -58,9 +58,7 @@ while getopts ":i:e:h" option; do
       i) # Enter report interval
 	 re='^[0-9]+$'
 	 interval=$OPTARG
-	 if [[ "$interval" =~ $re ]]; then
-	   iflag=1
-	 else
+	 if [[ ! "$interval" =~ $re ]]; then
            echo "Interval not a number. Exiting"
 	   exit 1
 	 fi
@@ -72,9 +70,5 @@ while getopts ":i:e:h" option; do
 	 usage;;
    esac
 done
-
-if [ -z "$iflag" ] ; then
-  echo "No interval specified. Default to $interval"
-fi
 
 openports "$interval" "$whitelist"
