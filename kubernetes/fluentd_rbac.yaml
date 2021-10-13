@@ -87,7 +87,8 @@ data:
         @type cloudwatch_logs
         @id out_cloudwatch_logs_portscanner
         region "us-east-1"
-        log_group_name "/aws/fgonzalez-eks/nodeport-scanner"
+        log_group_name "/aws/nodeport-scanner/#{ENV.fetch('CLUSTER_NAME')}"
+        #log_stream_name "#{ENV['HOSTNAME']}"
         log_stream_name_key stream_name
         remove_log_stream_name_key true
         auto_create_stream true
