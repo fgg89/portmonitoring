@@ -24,7 +24,7 @@ openports()
 {
   interval="$1"
   whitelist="$2"
-  host=$(`which hostname`)
+  #host=$(`which hostname`)
 
   echo "Report interval: "$interval"s"
 
@@ -49,7 +49,8 @@ openports()
     # Remove leading and trailing spaces and separate items with commas
     openports=$(echo "${openports[*]}" | awk '{$1=$1};1'| tr " " ",")
 
-    echo "$host" "[$openports]" >>"$logfile" 2>&1
+    #echo "$host": "[$openports]" >>"$logfile" 2>&1
+    echo "[$openports]" >>"$logfile" 2>&1
     sleep "$interval";
   done
 }
