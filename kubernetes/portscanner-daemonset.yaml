@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         name: portscanner
+      annotations:
+        iam.amazonaws.com/role: logging-sa
     spec:
       tolerations:
       - key: node-role.kubernetes.io/master
@@ -21,11 +23,18 @@ spec:
       imagePullSecrets:
       - name: regcred 
       hostNetwork: true
+      serviceAccount: logging-sa
+      serviceAccountName: logging-sa
+      volumes:
+      - name: fluentdconf
+        configMap:
+          name: fluentd-config
+      - name: app-logs
+        emptyDir: {}
       containers:
       - name: portscanner
         image: fgg89/nodeport-scanner:latest
-        args: ["-i", "15"]
-        #args: ["-i", "2", "-e", "22"]
+        args: ["-i", "30"]
         imagePullPolicy: Always
         resources:
           limits:
@@ -36,6 +45,25 @@ spec:
         volumeMounts:
         - name: app-logs
           mountPath: /var/log/portscanner
-      volumes:
-      - name: app-logs
-        emptyDir: {}
+      - name: fluentd
+        image: fluent/fluentd-kubernetes-daemonset:v1.9.3-debian-cloudwatch-1.0
+        env:
+        - name: REGION
+          value: us-east-1
+        - name: AWS_REGION
+          value: us-east-1
+        - name: CLUSTER_NAME
+          value: fgonzalez-eks
+        - name: CI_VERSION
+          value: "k8s/1.0.1"
+        resources:
+          limits:
+            memory: 400Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: fluentdconf
+          mountPath: /fluentd/etc
+        - name: app-logs
+          mountPath: /var/log/portscanner

@@ -33,6 +33,10 @@ openports()
     mapfile -t portlist < <(echo "${netstat_out}")
     openports=$(echo "${portlist[*]}")
 
+    if [ ${#openports[@]} -eq 0 ]; then
+      openports="None"
+    fi
+
     # If whitelist is specified then remove those ports from the openports array
     if [ ! -z "$whitelist" ]; then
       IFS=',' read -ra whiteports <<< "$whitelist"

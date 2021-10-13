@@ -33,15 +33,15 @@ metadata:
     k8s-app: portscanner
 data:
   fluent.conf: |
-    @include containers.conf
+    @include portscanner.conf
     <match fluent.**>
       @type null
     </match> 
-  containers.conf: |
+  portscanner.conf: |
     <source>
       @type tail
       @id in_tail_container_logs
-      @label @containers
+      @label @portscanner
       path /var/log/portscanner/portscanner.log
       pos_file /usr/local/portscanner.log.pos
       tag *
@@ -53,7 +53,7 @@ data:
       </parse>
     </source>
  
-    <label @containers>
+    <label @portscanner>
       <filter **>
         @type kubernetes_metadata
         @id filter_kube_metadata
@@ -61,7 +61,7 @@ data:
  
       <filter **>
         @type record_transformer
-        @id filter_containers_stream_transformer
+        @id filter_portscanner_stream_transformer
         <record>
           stream_name logs #
         </record>
@@ -85,9 +85,9 @@ data:
     <label @NORMAL>
       <match **>
         @type cloudwatch_logs
-        @id out_cloudwatch_logs_containers
-        region "#{ENV.fetch('REGION')}"
-        log_group_name "/aws/containerinsights/#{ENV.fetch('CLUSTER_NAME')}/portscanner"
+        @id out_cloudwatch_logs_portscanner
+        region "us-east-1"
+        log_group_name "/aws/fgonzalez-eks/nodeport-scanner"
         log_stream_name_key stream_name
         remove_log_stream_name_key true
         auto_create_stream true
