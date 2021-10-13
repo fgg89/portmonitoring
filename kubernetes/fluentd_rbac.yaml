@@ -61,19 +61,19 @@ data:
         @type record_transformer
         @id filter_portscanner_stream_transformer
         <record>
-          hostname "#{Socket.gethostname}"
+         #hostname "#{Socket.gethostname}"
           stream_name logs #
         </record>
       </filter>
  
-      #<filter **>
-      #  @type concat
-      #  key log
-      #  multiline_start_regexp /^\S/
-      #  separator ""
-      #  flush_interval 5
-      #  timeout_label @NORMAL
-      #</filter>
+      <filter **>
+        @type concat
+        key log
+        multiline_start_regexp /^\S/
+        separator ""
+        flush_interval 5
+        timeout_label @NORMAL
+      </filter>
  
       <match **>
         @type relabel
