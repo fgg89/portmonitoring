@@ -60,8 +60,10 @@ data:
       <filter **>
         @type record_transformer
         @id filter_portscanner_stream_transformer
+        enable_ruby
         <record>
-         #hostname "#{Socket.gethostname}"
+          hostname "#{Socket.gethostname}"
+          ports ${record["message"].length
           stream_name logs #
         </record>
       </filter>
