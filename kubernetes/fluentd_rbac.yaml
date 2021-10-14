@@ -61,9 +61,11 @@ data:
         @type record_transformer
         @id filter_portscanner_stream_transformer
         enable_ruby
+        auto_typecast true
         <record>
           hostname "#{Socket.gethostname}"
-          ports ${record["message"].length
+          #openports ${(Array(record["message"])).count}
+          openports ${record["message"]).split}
           stream_name logs #
         </record>
       </filter>
