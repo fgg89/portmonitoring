@@ -67,7 +67,7 @@ The following command is an example of execution where the interval is overwritt
 # docker run portscanner -i 10 -e 22,80
 ```
 
-The following command is meant for troubleshooting purposes or if you just want to dive deeper into the container:
+The following command is meant for troubleshoot purposes or if you just want to dive deeper into the container:
 
 ```
 # docker run -ti --rm --net=host --entrypoint /bin/bash portscanner
@@ -79,9 +79,13 @@ The following command is meant for troubleshooting purposes or if you just want 
 
 Once the logs are streamed into CloudWatch, it is possible to create metric filters in order visualize and/or alert based on those custom metrics.
 
-The logs are streamed by fluentd into a separate CloudWatch loggroup per node. A metric filter is configured in each loggroup in order to create a custom metric (i.e. ``has_openports``), which indicates whether the node has currently open ports or not. The metric contains a dimension for the hostname.
+The logs are streamed by fluentd into a separate CloudWatch loggroup per node. A metric filter is configured in each loggroup in order to create a custom metric (i.e. has_openports), which indicates whether the node has open ports currently or not. The metric contains a dimension for the hostname.
+
+![Custom Metric](screenshots/cw_metric_capture.png)
 
 Additionally, an alarm has also been created in CloudWatch in order to alert if a specific logstream stops receiving logs.
+
+![Report Alert](screenshots/cw_test_alert.png)
 
 ## List of improvements
 
