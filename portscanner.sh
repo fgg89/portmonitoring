@@ -47,10 +47,11 @@ openports()
     fi
 
     # Remove leading and trailing spaces and separate items with commas
-    openports=$(echo "${openports[*]}" | awk '{$1=$1};1'| tr " " ",")
+    #openports=$(echo "${openports[*]}" | awk '{$1=$1};1'| tr " " ",")
+    openports=$(echo "${openports[*]}" | awk '{$1=$1};1')
 
     #echo "$host": "[$openports]" >>"$logfile" 2>&1
-    echo "[$openports]" >>"$logfile" 2>&1
+    echo "$openports" >>"$logfile" 2>&1
     sleep "$interval";
   done
 }
