@@ -11,7 +11,7 @@ The solution is containerized and orchestrated via Kubernetes. A DaemonSet makes
 * portscanner -- core logic, scans open ports and stores the raw data into a volume.
 * fluentd -- sidecar container that has access to the volume where data is stored, parses it and streams it into CloudWatch.
 
-*NOTE: It would be advisable to add a third container with log rotation logic. This was out of scope for this project since there is no intentation to run it in production systems.*
+*NOTE: It would be advisable to add a third container with log rotation logic. This was out of scope for this project since we do not aim to run it in production systems at this point.*
 
 The portscanner docker image is fetched from a private DockerHub repository. A secret was created in Kubernetes for login into this repository and be able to pull the image:
 
@@ -27,6 +27,12 @@ The solution makes use of the following Kubernetes manifests:
 * kubernetes/namespace.yaml -- It creates the namespace.
 * kubernetes/fluentd_rbac.yaml -- It creates the ClusterRole and ClusterRoleBinding for fluentd and its associated ServiceAccount. It also creates the ConfigMap that will be used by fluentd. 
 * kubernetes/portscanner-daemonset.yaml -- DaemonSet that makes sure a pod is running in every cluster node.
+
+The manifests can be applied by running the following command:
+
+```
+kubectl apply -f <MANIFEST.yaml>
+```
 
 The ServiceAccount is bound to the following IAM policy in AWS, which grants permissions to operate with CloudWatch Logs:
 
