@@ -6,10 +6,10 @@ This project has been tested on AWS EKS but could be used in any Kubernetes clus
 
 The script takes into account open TCP IPv4 ports listening on 0.0.0.0
 
-The solution is containerized and orchestrated via Kubernetes. A DaemonSet makes sure that the agent is executed in every cluster node. The pod in each node contains two containers: 
+The solution is containerized and orchestrated via Kubernetes. A DaemonSet makes sure that the agent is executed in every cluster node. The pod in each node consists of two containers: 
 
-* portscanner --> core logic, scans open ports and stores the raw data into a volume.
-* fluentd --> sidecar container that has access to the volume where data is stored, parses it and streams it into CloudWatch.
+* portscanner &#8594; core logic, scans open ports and stores the raw data into a volume.
+* fluentd &#8594; sidecar container that has access to the volume where data is stored, parses it and streams it into CloudWatch.
 
 NOTE: It would be advisable to add a third container with log rotation logic. This was out of scope for this project since there is no intentation to run it in production systems.
 
@@ -69,7 +69,8 @@ The following command is meant for troubleshoot purposes or if you just want to 
 
 ```
 docker run -ti --rm --net=host --entrypoint /bin/bash portscanner
-./opt/portscanner
+cd /opt
+./portscanner
 ```
 
 NOTE: Logs are stored in a volume mounted at ``/var/log/portscanner/portscanner.log``
