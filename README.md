@@ -8,10 +8,10 @@ The script takes into account open TCP IPv4 ports listening on 0.0.0.0
 
 The solution is containerized and orchestrated via Kubernetes. A DaemonSet makes sure that the agent is executed in every cluster node. The pod in each node consists of two containers: 
 
-* portscanner &#8594; core logic, scans open ports and stores the raw data into a volume.
-* fluentd &#8594; sidecar container that has access to the volume where data is stored, parses it and streams it into CloudWatch.
+* portscanner -- core logic, scans open ports and stores the raw data into a volume.
+* fluentd -- sidecar container that has access to the volume where data is stored, parses it and streams it into CloudWatch.
 
-NOTE: It would be advisable to add a third container with log rotation logic. This was out of scope for this project since there is no intentation to run it in production systems.
+*NOTE: It would be advisable to add a third container with log rotation logic. This was out of scope for this project since there is no intentation to run it in production systems.*
 
 The portscanner docker image is fetched from a private DockerHub repository. A secret was created in Kubernetes for login into this repository and be able to pull the image:
 
@@ -24,11 +24,11 @@ In order for the container to have access to the host system network stack, it i
 
 The solution makes use of the following Kubernetes manifests:
 
-* kubernetes/namespace.yaml --> It creates the namespace.
-* kubernetes/fluentd_rbac.yaml --> It creates the ClusterRole and ClusterRoleBinding for fluentd and its associated ServiceAccount. It also creates the ConfigMap that will be used by fluentd. 
-* kubernetes/portscanner-daemonset.yaml -> DaemonSet that makes sure a pod is running in every cluster node.
+* kubernetes/namespace.yaml -- It creates the namespace.
+* kubernetes/fluentd_rbac.yaml -- It creates the ClusterRole and ClusterRoleBinding for fluentd and its associated ServiceAccount. It also creates the ConfigMap that will be used by fluentd. 
+* kubernetes/portscanner-daemonset.yaml -- DaemonSet that makes sure a pod is running in every cluster node.
 
-NOTE: The ServiceAccount is bound to the following IAM policy in AWS, which grants permissions to operate with CloudWatch Logs:
+The ServiceAccount is bound to the following IAM policy in AWS, which grants permissions to operate with CloudWatch Logs:
 
 ```
 arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
@@ -73,7 +73,7 @@ cd /opt
 ./portscanner
 ```
 
-NOTE: Logs are stored in a volume mounted at ``/var/log/portscanner/portscanner.log``
+*NOTE: Logs are stored in a volume mounted at ``/var/log/portscanner/portscanner.log``*
 
 ## CloudWatch
 
