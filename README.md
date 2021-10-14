@@ -46,12 +46,14 @@ In order to create the ServiceAccount within EKS, the following commands were ex
 The script may take two optional arguments:
 
 ```
-./portscanner
+portscanner
 -i / interval for report logging
 -e / list of comma-separated port numbers to be excluded in the report
 ```
 
 If no argument is specified, the script will report at a default interval (i.e. 60s) and no whitelisting will take place.
+
+## Local testing
 
 It is possible to build the image locally via the provided Dockerfile:
 
