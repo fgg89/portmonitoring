@@ -64,12 +64,10 @@ data:
         auto_typecast true
         <record>
           hostname "#{Socket.gethostname}"
-          #openports ${(Array(record["message"])).count}
-          openports ${record["message"]).split}
           stream_name logs #
         </record>
       </filter>
- 
+
       <filter **>
         @type concat
         key log
@@ -90,7 +88,7 @@ data:
         @type cloudwatch_logs
         @id out_cloudwatch_logs_portscanner
         region "us-east-1"
-        log_group_name "/aws/nodeport-scanner/#{ENV.fetch('CLUSTER_NAME')}"
+        log_group_name "/aws/nodeport-scanner/#{ENV.fetch('CLUSTER_NAME')}/#{ENV['HOSTNAME']}"
         #log_stream_name "#{ENV['HOSTNAME']}"
         log_stream_name_key stream_name
         remove_log_stream_name_key true
