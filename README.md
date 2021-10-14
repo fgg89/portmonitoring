@@ -16,8 +16,8 @@ The solution is containerized and orchestrated via Kubernetes. A DaemonSet makes
 The portscanner docker image is fetched from a private DockerHub repository. A secret was created in Kubernetes for login into this repository and be able to pull the image:
 
 ```
-kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=... --docker-password=... --docker-email=... -n portscanner
-kubectl get secret regcred --output="jsonpath={.data.\.dockerconfigjson}" | base64 --decode
+# kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=... --docker-password=... --docker-email=... -n portscanner
+# kubectl get secret regcred --output="jsonpath={.data.\.dockerconfigjson}" | base64 --decode
 ```
 
 In order for the container to have access to the host system network stack, it is necessary to set the ``hostNetwork`` to ``true`` within the DaemonSet spec.
@@ -56,24 +56,22 @@ If no argument is specified, the script will report at a default interval (i.e. 
 It is possible to build the image locally via the provided Dockerfile:
 
 ```
-docker build -t portscanner .
+# docker build -t portscanner .
 ```
 
 The following command is an example of execution where the interval is overwritten to report every 10s and the ports 22 and 80 are excluded from the report:
 
 ```
-docker run portscanner -i 10 -e 22,80
+# docker run portscanner -i 10 -e 22,80
 ```
 
 The following command is meant for troubleshoot purposes or if you just want to dive deeper into the container:
 
 ```
-docker run -ti --rm --net=host --entrypoint /bin/bash portscanner
-cd /opt
-./portscanner
+# docker run -ti --rm --net=host --entrypoint /bin/bash portscanner
 ```
 
-*NOTE: Logs are stored in a volume mounted at ``/var/log/portscanner/portscanner.log``*
+*NOTE: The script is located at ``/opt/portscanner`` and the log is stored in a volume mounted at ``/var/log/portscanner/portscanner.log``*
 
 ## CloudWatch
 
