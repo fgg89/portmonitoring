@@ -1,10 +1,10 @@
 # README
 
-This project was developed for demo purposes in order to get a quick implementation of an agent that scans open ports in the system (i.e. ``portsagent.sh``) and reports to a centralized system (AWS Cloudwatch in this scenario). 
+This project was developed for demo purposes in order to get a quick implementation of an agent that scans open ports in EKS cluster nodes and reports the findings to a centralized logging system (AWS Cloudwatch in this scenario). 
+
+This project has been tested on AWS EKS but could be used in any Kubernetes cluster or even in any other Linux-based system.
 
 The script takes into account open TCP IPv4 ports listening on 0.0.0.0
-
-Once the logs are streamed into CloudWatch, it is possible to create metric filters in order visualize and/or alert based on those custom metrics.
 
 The solution is containerized and orchestrated via Kubernetes. A DaemonSet makes sure that the agent is executed in every cluster node. The pod in each node contains two containers: 
 
@@ -19,6 +19,8 @@ The portscanner docker image is fetched from a private DockerHub repository. A s
 kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=... --docker-password=... --docker-email=... -n portscanner
 kubectl get secret regcred --output="jsonpath={.data.\.dockerconfigjson}" | base64 --decode
 ```
+
+In order for the container to have access to the host system network stack, it is necessary to set the ``hostNetwork`` to ``true`` within the DaemonSet spec.
 
 The solution makes use of the following Kubernetes manifests:
 
@@ -49,9 +51,7 @@ The script may take two optional arguments:
 -e / list of comma-separated port numbers to be excluded in the report
 ```
 
-If no argument is specific, the script will report at a default interval and no whitelisting will take place.
-
-NOTE: Only basic input validation is implemented at the moment of writing this.
+If no argument is specified, the script will report at a default interval (i.e. 60s) and no whitelisting will take place.
 
 It is possible to build the image locally via the provided Dockerfile:
 
@@ -59,19 +59,32 @@ It is possible to build the image locally via the provided Dockerfile:
 docker build -t portscanner .
 ```
 
-The following command is an example of execution where the interval is overriden to report every 10s (default: 60s) and the ports 22 and 80 are excluded:
+The following command is an example of execution where the interval is overwritten to report every 10s and the ports 22 and 80 are excluded from the report:
 
 ```
 docker run portscanner -i 10 -e 22,80
 ```
 
+The following command is meant for troubleshoot purposes or if you just want to dive deeper into the container:
+
+```
+docker run -ti --rm --net=host --entrypoint /bin/bash portscanner
+./opt/portscanner
+```
+
+NOTE: Logs are stored in a volume mounted at ``/var/log/portscanner/portscanner.log``
+
 ## CloudWatch
 
-The logs are streamed from fluentd into a separate loggroup within CloudWatch. A metric filter is configured in each one in order to create the "has_openports" metric, which indicates whether the node has open ports currently or not. The metric contains a dimension for the hostname.
+Once the logs are streamed into CloudWatch, it is possible to create metric filters in order visualize and/or alert based on those custom metrics.
+
+The logs are streamed by fluentd into a separate CloudWatch loggroup per node. A metric filter is configured in each loggroup in order to create a custom metric (i.e. has_openports), which indicates whether the node has open ports currently or not. The metric contains a dimension for the hostname.
 
 Additionally, an alarm has also been created in CloudWatch in order to alert if a specific logstream stops receiving logs.
 
-## TODO list of improvements:
+## List of improvements
+
+The following list considers potential improvement opportunities.
 
 * Extend alarms in CloudWatch to handle application errors.
 * Implement more metrics in CloudWatch, such as a count for the number of open ports in each node.

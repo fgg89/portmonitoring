@@ -2,7 +2,7 @@
 
 logfile="/var/log/portscanner/portscanner.log"
 whitelist=""
-interval=3
+interval=60
 
 # help menu
 usage()
