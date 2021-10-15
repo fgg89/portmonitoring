@@ -1,7 +1,7 @@
 #!/bin/bash
 
 logfile="/var/log/portscanner/portscanner.log"
-whitelist=""
+whitelist=()
 interval=60
 
 # help menu
@@ -29,24 +29,41 @@ openports()
   echo "Report interval: "$interval"s"
 
   while true; do
+    portlist=()
+    openports=()
     netstat_out=$(netstat -tuln4 | grep 'LISTEN' | awk '{print $4}' | grep 0.0.0.0 | cut -d':' -f2 | sort -un)
-    mapfile -t portlist < <(echo "${netstat_out}")
-    openports=$(echo "${portlist[*]}")
+    portlist+=($netstat_out)
+    openports=("${portlist[@]}")
 
-    # If whitelist is specified then remove those ports from the openports array
-    if [ ! -z "$whitelist" ]; then
-      IFS=',' read -ra whiteports <<< "$whitelist"
-      for port in "${whiteports[@]}"
-      do
-        openports=( "${openports[@]/$port}" )  
-      done
+    # Apply the whitelist if there are open ports
+    if [[ ! "${#openports[@]}" -eq 0 ]]; then
+        # Check if whitelist is specified
+        if [ ! -z "$whitelist" ]; then
+	  IFS=',' read -ra whiteports <<< "$whitelist"
+	  for port in "${whiteports[@]}"; do
+            for target in "${!openports[@]}"; do
+	      if [[ "${openports[target]}" = "$port" ]]; then
+	         unset 'openports[target]'
+	      fi
+	    done
+	  done
+        fi
+    else
+      echo "No open ports"
     fi
 
-    # Remove leading and trailing spaces and separate items with commas
-    openports=$(echo "${openports[*]}" | awk '{$1=$1};1'| tr " " ",")
+    if [ "${#openports[@]}" -eq 0 ]; then
+      openports+=(None)
+      echo "["${openports[*]}"]"
+    fi
 
-    #echo "$host": "[$openports]" >>"$logfile" 2>&1
-    echo "[$openports]" >>"$logfile" 2>&1
+    # Separate items with commas
+    ports="${openports[*]}"
+    ports=$(echo "$ports" | tr " " ",")
+    data=("$ports")
+
+    ##echo "$host": "[${openports[*]}]" >>"$logfile" 2>&1
+    echo "["$data"]" >>"$logfile" 2>&1
     sleep "$interval";
   done
 }
