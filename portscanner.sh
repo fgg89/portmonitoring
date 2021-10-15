@@ -54,7 +54,7 @@ openports()
     fi
 
     if [ "${#openports[@]}" -eq 0 ]; then
-      openports+=(None)
+      openports+=(null)
       echo "["${openports[*]}"]"
     fi
 
