@@ -35,11 +35,12 @@ openports()
     portlist+=($netstat_out)
     openports=("${portlist[@]}")
 
-    # Apply the whitelist if there are open ports
+    # Check if there are open ports
     if [[ ! "${#openports[@]}" -eq 0 ]]; then
         # Check if whitelist is specified
         if [ ! -z "$whitelist" ]; then
 	  IFS=',' read -ra whiteports <<< "$whitelist"
+	  # Apply the whitelist
 	  for port in "${whiteports[@]}"; do
             for target in "${!openports[@]}"; do
 	      if [[ "${openports[target]}" = "$port" ]]; then
