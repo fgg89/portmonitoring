@@ -73,7 +73,7 @@ The following command is an example of execution where the interval is overwritt
 # docker run portscanner -i 10 -e 22,80
 ```
 
-The following command is meant for troubleshoot purposes or if you just want to dive deeper into the container:
+The following command is meant for troubleshooting purposes or if you just want to dive deeper into the container:
 
 ```
 # docker run -ti --rm --net=host --entrypoint /bin/bash portscanner
