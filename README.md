@@ -105,6 +105,5 @@ The following list considers potential improvement opportunities.
 
 * Extend alarms in CloudWatch to handle application errors.
 * Implement more metrics in CloudWatch, such as a count for the number of open ports in each node.
-* Proper validation of script input arguments.
 * Add support for IPv6 ports and to select the application protocol (TCP, UDP)
 

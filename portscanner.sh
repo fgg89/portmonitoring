@@ -55,7 +55,7 @@ openports()
 
     if [ "${#openports[@]}" -eq 0 ]; then
       openports+=(null)
-      echo "["${openports[*]}"]"
+      #echo "["${openports[*]}"]"
     fi
 
     # Separate items with commas
@@ -69,21 +69,42 @@ openports()
   done
 }
 
+validate_input(){
+  re='^[0-9]+$'
+  input="$1"
+  
+  for item in $(echo "$input" | sed "s/,/ /g")
+  do
+    if [[ ! "$item" =~ $re ]]; then
+      echo -1
+      return -1
+    fi
+  done
+  echo 0
+}
+
+
 # Get the options
 while getopts ":i:e:h" option; do
    case $option in
       h) # Display usage menu
          usage;;
       i) # Enter report interval
-	 re='^[0-9]+$'
 	 interval=$OPTARG
-	 if [[ ! "$interval" =~ $re ]]; then
-           echo "Interval not a number. Exiting"
+	 retval=$(validate_input $interval)
+	 if [ $retval == -1 ]; then
+           echo "Error in interval validation"
 	   exit 1
 	 fi
 	 ;;
       e) # Enter ports to exclude in the report
-	 whitelist=$OPTARG;;
+	 whitelist=$OPTARG
+	 retval=$(validate_input $whitelist)
+	 if [ $retval == -1 ]; then
+           echo "Error in whitelist validation"
+	   exit 1
+	 fi
+	 ;;
       \?) # Invalid option
          echo "Error: Invalid option"
 	 usage;;
