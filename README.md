@@ -28,6 +28,12 @@ The solution makes use of the following Kubernetes manifests:
 * kubernetes/fluentd_rbac.yaml -- It creates the ClusterRole and ClusterRoleBinding for fluentd and its associated ServiceAccount. It also creates the ConfigMap that will be used by fluentd. 
 * kubernetes/portscanner-daemonset.yaml -- DaemonSet that makes sure a pod is running in every cluster node.
 
+Set working namespace as default:
+
+```
+kubectl config set-context --current --namespace=portscanner
+```
+
 The manifests can be applied by running the following command:
 
 ```
