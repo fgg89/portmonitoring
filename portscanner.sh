@@ -33,10 +33,6 @@ openports()
     mapfile -t portlist < <(echo "${netstat_out}")
     openports=$(echo "${portlist[*]}")
 
-    #if [ ${#openports[@]} -eq 0 ]; then
-    #  openports="None"
-    #fi
-
     # If whitelist is specified then remove those ports from the openports array
     if [ ! -z "$whitelist" ]; then
       IFS=',' read -ra whiteports <<< "$whitelist"
@@ -47,11 +43,10 @@ openports()
     fi
 
     # Remove leading and trailing spaces and separate items with commas
-    #openports=$(echo "${openports[*]}" | awk '{$1=$1};1'| tr " " ",")
-    openports=$(echo "${openports[*]}" | awk '{$1=$1};1')
+    openports=$(echo "${openports[*]}" | awk '{$1=$1};1'| tr " " ",")
 
     #echo "$host": "[$openports]" >>"$logfile" 2>&1
-    echo "$openports" >>"$logfile" 2>&1
+    echo "[$openports]" >>"$logfile" 2>&1
     sleep "$interval";
   done
 }
