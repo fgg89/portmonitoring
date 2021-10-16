@@ -4,7 +4,7 @@ logfile="/var/log/portscanner/portscanner.log"
 whitelist=()
 interval=60
 
-# help menu
+# Help menu
 usage()
 {
    # Display Help
@@ -55,7 +55,6 @@ openports()
 
     if [ "${#openports[@]}" -eq 0 ]; then
       openports+=(null)
-      #echo "["${openports[*]}"]"
     fi
 
     # Separate items with commas
@@ -69,6 +68,7 @@ openports()
   done
 }
 
+# Integer input validation
 validate_input(){
   re='^[0-9]+$'
   input="$1"
