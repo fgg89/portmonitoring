@@ -7,7 +7,7 @@ The agent has been tested on AWS EKS but could be used in any Kubernetes cluster
 The solution is containerized and orchestrated via Kubernetes. A DaemonSet makes sure that the agent is executed in every cluster node. The pod in each node consists of two containers: 
 
 * portscanner -- core logic, scans open ports and stores the raw data into a volume.
-* [fluentd] (https://www.fluentd.org/) -- sidecar container that has access to the volume where data is stored, parses it and streams it into CloudWatch.
+* [fluentd](https://www.fluentd.org/) -- sidecar container that has access to the volume where data is stored, parses it and streams it into CloudWatch.
 
 *NOTE: It's recommended to extend the pod with a third container that implements the logic for log rotation. This was out of scope for this project since we do not aim to run it in production systems at this point, but could be a potential development in the future.*
 
