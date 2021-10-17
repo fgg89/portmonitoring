@@ -22,9 +22,9 @@ In order for the container to have access to the host system network stack, it i
 
 The solution makes use of the following Kubernetes manifests:
 
-* kubernetes/namespace.yaml -- It creates the namespace.
-* kubernetes/fluentd_rbac.yaml -- It creates the ClusterRole and ClusterRoleBinding for fluentd and its associated ServiceAccount. It also creates the ConfigMap that will be used by fluentd. 
-* kubernetes/portscanner-daemonset.yaml -- DaemonSet that makes sure a pod is running in every cluster node.
+* ``kubernetes/namespace.yaml`` -- It creates the namespace.
+* ``kubernetes/fluentd_rbac.yaml`` -- It creates the ClusterRole and ClusterRoleBinding for fluentd and its associated ServiceAccount. It also creates the ConfigMap that will be used by fluentd. 
+* ``kubernetes/portscanner-daemonset.yaml`` -- DaemonSet that makes sure a pod is running in every cluster node.
 
 Set working namespace as default:
 
