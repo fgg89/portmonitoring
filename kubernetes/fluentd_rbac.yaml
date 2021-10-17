@@ -64,7 +64,6 @@ data:
         auto_typecast true
         <record>
           hostname "#{Socket.gethostname}"
-          #portscount ${record["message"].split(',').length if record["message"] != "[null]"}
           portscount ${record["message"] != "[null]" ? record["message"].split(',').length : 0}
           stream_name logs #
         </record>
