@@ -2,16 +2,14 @@
 
 This project was developed for demo purposes in order to get a quick implementation of an agent that scans open ports in EKS cluster nodes and reports the findings to a centralized logging system (AWS Cloudwatch in this scenario). 
 
-This project has been tested on AWS EKS but could be used in any Kubernetes cluster or even in any other Linux-based system.
-
-The script takes into account open TCP IPv4 ports listening on 0.0.0.0
+The agent has been tested on AWS EKS but could be used in any Kubernetes cluster or even in any other Linux-based system. The agent takes into account open TCP IPv4 ports listening on 0.0.0.0
 
 The solution is containerized and orchestrated via Kubernetes. A DaemonSet makes sure that the agent is executed in every cluster node. The pod in each node consists of two containers: 
 
 * portscanner -- core logic, scans open ports and stores the raw data into a volume.
 * fluentd -- sidecar container that has access to the volume where data is stored, parses it and streams it into CloudWatch.
 
-*NOTE: It would be advisable to add a third container with log rotation logic. This was out of scope for this project since we do not aim to run it in production systems at this point.*
+*NOTE: It's recommended to add a third container with the logic for log rotation. This was out of scope for this project since we do not aim to run it in production systems at this point.*
 
 The portscanner docker image is fetched from a private DockerHub repository. A secret was created in Kubernetes for login into this repository and be able to pull the image:
 
@@ -55,7 +53,7 @@ In order to create the ServiceAccount within EKS, the following commands were ex
 
 ## Node scanner
 
-The script may take two optional arguments:
+The agent is implemented with a shell script, which can take two optional arguments:
 
 ```
 portscanner
@@ -76,7 +74,7 @@ It is possible to build the image locally via the provided Dockerfile:
 The following command is an example of execution where the interval is overwritten to report every 10s and the ports 22 and 80 are excluded from the report:
 
 ```
-# docker run portscanner -i 10 -e 22,80
+# docker run portscanner --net=host -i 10 -e 22,80
 ```
 
 The following command is meant for troubleshooting purposes or if you just want to dive deeper into the container:
@@ -87,23 +85,26 @@ The following command is meant for troubleshooting purposes or if you just want 
 
 *NOTE: The script is located at ``/opt/portscanner`` and the log is stored in a volume mounted at ``/var/log/portscanner/portscanner.log``*
 
-## CloudWatch
+## CloudWatch logging, visualization and alerting
 
 Once the logs are streamed into CloudWatch, it is possible to create metric filters in order visualize and/or alert based on those custom metrics.
 
-The logs are streamed by fluentd into a separate CloudWatch loggroup per node. A metric filter is configured in each loggroup in order to create a custom metric (i.e. has_openports), which indicates whether the node has open ports currently or not. The metric contains a dimension for the hostname.
+The following shows a log report sample:
 
-![Custom Metric](screenshots/cw_metric_capture.png)
+```
+2021-10-17T20:21:47.940+02:00  {"message":"[22,111]","hostname":"ip-192-168-0-218.ec2.internal","portscount":2}
+```
+
+The logs are streamed by fluentd into a separate CloudWatch loggroup per node, and two metric filters have been configured:
+
+* Metric filter: *has_openports* indicates whether the node has open ports currently or not. The metric contains a dimension for the hostname.
+* Metric filter: *portscount* indicates the number of ports that are currently open for the given instance. The metric contains a dimension for the hostname.
+
+In order to have a quick look at both metrics, a dashboard with two widgets has been created in CloudWatch:
+
+![CloudWatch Dashboards](screenshots/cw_dashboard.png)
 
 Additionally, an alarm has also been created in CloudWatch in order to alert if a specific logstream stops receiving logs.
 
 ![Report Alert](screenshots/cw_test_alert.png)
-
-## List of improvements
-
-The following list considers potential improvement opportunities.
-
-* Extend alarms in CloudWatch to handle application errors.
-* Implement more metrics in CloudWatch, such as a count for the number of open ports in each node.
-* Add support for IPv6 ports and to select the application protocol (TCP, UDP)
 
