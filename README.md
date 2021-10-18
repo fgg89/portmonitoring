@@ -112,7 +112,7 @@ In order to have a quick look at both metrics, a dashboard with two widgets has 
 
 ![CloudWatch Dashboards](screenshots/cw_dashboard.png)
 
-Additionally, an alarm has also been created in CloudWatch in order to alert if an agent fails to report (i.e. the logstream stops receiving logs).
+Additionally, an alarm has been created in CloudWatch for each node in order to alert if an agent fails to report (i.e. the logstream stops receiving logs).
 
 ![Report Alert](screenshots/cw_test_alert.png)
 
