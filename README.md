@@ -105,7 +105,7 @@ The following shows a log report sample:
 
 The logs are streamed by fluentd into a separate CloudWatch loggroup per node. Two metric filters have been configured:
 
-* Metric filter: *has_openports* indicates whether the node has open ports currently or not. The metric contains a dimension for the hostname.
+* Metric filter: *has_openports* indicates with value = 1 that there are open ports currently in the node. The metric contains a dimension for the hostname.
 * Metric filter: *portscount* indicates the number of ports that are currently open for the given instance. The metric contains a dimension for the hostname.
 
 In order to have a quick look at both metrics, a dashboard with two widgets has been created in CloudWatch:
